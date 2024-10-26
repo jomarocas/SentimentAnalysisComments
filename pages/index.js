@@ -1,16 +1,27 @@
 import { useState } from 'react';
 import axios from 'axios';
+import { useRouter } from 'next/router';
 
 export default function Home() {
     const [url, setUrl] = useState('');
     const [comments, setComments] = useState('');
     const [result, setResult] = useState(null);
+    const [newsId, setNewsId] = useState('');
+    const router = useRouter();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
             const response = await axios.post('http://127.0.0.1:5000/comments', { url, comments });
             setResult(response.data);
+
+            // Obtener el ID de la noticia a partir de la URL
+            const idMatch = url.match(/#(\d+)/);
+            if (idMatch) {
+                setNewsId(idMatch[1]); // Guardar el ID en el estado
+            } else {
+                setNewsId(''); // Restablecer si no se encuentra el ID
+            }
         } catch (error) {
             console.error('Error procesando los comentarios:', error);
         }
@@ -49,6 +60,15 @@ export default function Home() {
                 <div className="mt-6 bg-gray-50 p-4 rounded-lg shadow-md">
                     <h2 className="text-2xl font-semibold mb-4">Resultados:</h2>
                     <pre className="whitespace-pre-wrap">{JSON.stringify(result, null, 2)}</pre>
+                    {/* Enlace a la página de sentimiento */}
+                    {newsId && (
+                        <a
+                            href={`/sentiment/${newsId}`}
+                            className="text-blue-600 hover:underline mt-4 inline-block"
+                        >
+                            Ver análisis de sentimiento
+                        </a>
+                    )}
                 </div>
             )}
         </div>

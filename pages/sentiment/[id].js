@@ -10,6 +10,9 @@ const SentimentDashboard = () => {
     const { id: newsId } = router.query;
 
     const [commentsData, setCommentsData] = useState({
+        title: '',  // Título de la noticia
+        lead: '',   // Lead de la noticia
+        category: '', // Categoría de la noticia
         overallSentiment: 0,
         totalComments: 0,
         uniqueUsers: 0,
@@ -18,6 +21,7 @@ const SentimentDashboard = () => {
             neutral: 0,
             negative: 0,
         },
+        comments: []  // Almacenar los comentarios
     });
 
     useEffect(() => {
@@ -31,6 +35,9 @@ const SentimentDashboard = () => {
                     const data = await response.json();
 
                     setCommentsData({
+                        title: data.title, // Establecer el título
+                        lead: data.lead,   // Establecer el lead
+                        category: data.category, // Establecer la categoría
                         overallSentiment: data.overallSentiment,
                         totalComments: data.totalComments,
                         uniqueUsers: data.uniqueUsers,
@@ -39,6 +46,7 @@ const SentimentDashboard = () => {
                             neutral: data.sentimentBreakdown.neutral,
                             negative: data.sentimentBreakdown.negative,
                         },
+                        comments: data.comments // Guardar los comentarios
                     });
                 } catch (error) {
                     console.error(error);
@@ -91,6 +99,14 @@ const SentimentDashboard = () => {
             <div className="bg-white shadow-md rounded-lg p-8 max-w-5xl w-full space-y-8">
                 <div className="text-center">
                     <h1 className="text-2xl font-semibold text-gray-800 mb-4">Análisis de Sentimiento</h1>
+
+                    {/* Mostrar el título, el lead y la categoría */}
+                    <div className="text-left mb-6">
+                        <h2 className="text-xl font-bold text-gray-700">{commentsData.title}</h2>
+                        <p className="text-gray-600">{commentsData.lead}</p>
+                        <p className="text-gray-500 italic">Categoría de la noticia: {commentsData.category || "No disponible"}</p> {/* Mostrar la categoría */}
+                    </div>
+
                     <div className="flex justify-around items-center">
                         <div className="text-center">
                             <p className="text-sm text-gray-600">Nivel general de sentimiento</p>
@@ -118,6 +134,24 @@ const SentimentDashboard = () => {
                                 <p>Negativo: {negativePercentage}% {getArrow('negative')}</p>
                             </div>
                         </div>
+                    </div>
+
+                    {/* Mostrar los comentarios */}
+                    <div className="mt-8">
+                        <h3 className="text-lg font-semibold text-gray-700 mb-4">Comentarios</h3>
+                        {commentsData.comments.length > 0 ? (
+                            <ul className="space-y-4">
+                                {commentsData.comments.map((comment, index) => (
+                                    <li key={index} className="p-4 bg-gray-100 rounded-md shadow">
+                                        <p className="text-sm text-gray-800"><strong>Usuario:</strong> {comment.author || "Anónimo"}</p>
+                                        <p className="text-sm text-gray-800"><strong>Comentario:</strong> {comment.content || "Comentario no disponible"}</p>  {/* Mostrar el comentario */}
+                                        <p className="text-sm text-gray-500"><strong>Sentimiento:</strong> {comment.sentiment}</p>
+                                    </li>
+                                ))}
+                            </ul>
+                        ) : (
+                            <p className="text-gray-600">No hay comentarios disponibles.</p>
+                        )}
                     </div>
                 </div>
             </div>

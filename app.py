@@ -63,14 +63,16 @@ def process_comments(raw_comments):
         elif line.startswith('Hace'):  # Capturamos la fecha
             current_date = line
         elif line:  # El resto es contenido del comentario
-            processed_comments.append({
-                'author': current_author,
-                'date': current_date,
-                'content': line
-            })
+            # Verificamos si el contenido no es "Anuncio"
+            if line.lower() != "anuncio":  # Comprobamos si no es solo "Anuncio"
+                processed_comments.append({
+                    'author': current_author,
+                    'date': current_date,
+                    'content': line
+                })
             current_author = "Anonymous"  # Restablecemos los valores por defecto
             current_date = "Sin fecha"
-    
+
     return processed_comments
 
 # Función para analizar el sentimiento de un comentario usando VADER
@@ -83,11 +85,26 @@ def analyze_sentiment(comment):
     else:
         return 'neutral'
 
-# Función para determinar si la noticia es de política
-def is_political_news(title, lead):
-    keywords = ['política', 'gobierno', 'elecciones', 'congreso', 'partidos']
+# Función para categorizar la noticia
+def categorize_news(title, lead):
+    # Definimos las palabras clave para cada categoría
+    categories = {
+        'política': ['política', 'gobierno', 'elecciones', 'congreso', 'partidos', 'corrupcion'],
+        'deportes': ['deportes', 'fútbol', 'baloncesto', 'atletismo', 'equipo'],
+        'tragedias': ['tragedia', 'accidente', 'muerte', 'desastre', 'heridos'],
+        'entretenimiento': ['entretenimiento', 'cine', 'música', 'espectáculos', 'celebridades'],
+        # Puedes agregar más categorías y sus palabras clave aquí
+    }
+
+    # Combinamos el título y el lead para buscar en ambas cadenas
     combined_text = f"{title.lower()} {lead.lower()}"
-    return any(keyword in combined_text for keyword in keywords)
+
+    # Verificamos cada categoría
+    for category, keywords in categories.items():
+        if any(keyword in combined_text for keyword in keywords):
+            return category  # Retornamos la categoría que coincide
+
+    return 'otros'  # Retornamos 'otros' si no coincide con ninguna categoría
 
 # Ruta para recibir la URL de la noticia y los comentarios
 @app.route('/comments', methods=['POST'])
@@ -111,8 +128,8 @@ def add_comments():
     for comment in processed_comments:
         comment['sentiment'] = analyze_sentiment(comment['content'])
 
-    # Determinar si la noticia es de política
-    news_data['is_political'] = is_political_news(news_data['title'], news_data['lead'])
+    # Categorizar la noticia
+    news_data['category'] = categorize_news(news_data['title'], news_data['lead'])
 
     # Guardar los datos de la noticia y los comentarios en MongoDB
     news_collection.insert_one({
@@ -183,9 +200,11 @@ def get_sentiment_stats_by_id(news_id):
         'negative': (num_negative / total_comments) * 100
     }
 
-    # Retornar los datos
+    # Retornar los datos, incluyendo título, lead y categoría
     return jsonify({
-        'news': news_data['news_data'],
+        'title': news_data['news_data'].get('title', 'Título no disponible'),
+        'lead': news_data['news_data'].get('lead', 'Lead no disponible'),
+        'category': news_data['news_data'].get('category', 'Categoría no disponible'),  # Añadido aquí
         'overallSentiment': overall_sentiment,
         'totalComments': total_comments,
         'uniqueUsers': unique_users,
