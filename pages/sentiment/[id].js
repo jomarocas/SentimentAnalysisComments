@@ -28,7 +28,7 @@ const SentimentDashboard = () => {
         if (newsId) {
             const fetchSentimentData = async (newsId) => {
                 try {
-                    const response = await fetch(`http://localhost:5000/comments/stats/${newsId}`);
+                    const response = await fetch(`http://localhost:8000/comments/stats/${newsId}`);
                     if (!response.ok) {
                         throw new Error('Error al obtener los datos de sentimientos');
                     }

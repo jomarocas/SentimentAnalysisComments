@@ -12,7 +12,7 @@ export default function Home() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const response = await axios.post('http://127.0.0.1:5000/comments', { url, comments });
+            const response = await axios.post('http://127.0.0.1:8000/comments', { url, comments });
             setResult(response.data);
 
             // Obtener el ID de la noticia a partir de la URL
