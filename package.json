@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "next lint",
     "prod": "concurrently && uvicorn main:app && npm run dev",
-    "test": "concurrently \"uvicorn main:app --reload\" \"npm run dev\""
+    "test": "concurrently \"uvicorn main:app --reload\" \"npm run start\""
   },
   "dependencies": {
     "axios": "^1.7.7",
