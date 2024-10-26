@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "next lint",
     "prod": "concurrently && uvicorn main:app && npm run dev",
-    "test": "concurrently \"uvicorn app:app --reload\" \"npm run dev\""
+    "test": "concurrently \".envpython/bin/uvicorn app:app --reload\" \"npm run dev\""
   },
   "dependencies": {
     "axios": "^1.7.7",
@@ -24,6 +24,7 @@
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "autoprefixer": "^10.4.20",
+    "concurrently": "^9.0.1",
     "postcss": "^8.4.47",
     "tailwindcss": "^3.4.13",
     "typescript": "^5"
