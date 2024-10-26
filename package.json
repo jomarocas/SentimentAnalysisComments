@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "prod": "concurrently && uvicorn main:app && npm run dev"
   },
   "dependencies": {
     "axios": "^1.7.7",
